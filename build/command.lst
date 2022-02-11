@@ -1,0 +1,1166 @@
+ARM GAS  /tmp/ccMMcrFe.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"command.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.rodata.clear.str1.4,"aMS",%progbits,1
+  20              		.align	2
+  21              	.LC0:
+  22 0000 1B5B324A 		.ascii	"\033[2J\033[H\000"
+  22      1B5B4800 
+  23              		.section	.text.clear,"ax",%progbits
+  24              		.align	1
+  25              		.global	clear
+  26              		.syntax unified
+  27              		.thumb
+  28              		.thumb_func
+  30              	clear:
+  31              	.LVL0:
+  32              	.LFB133:
+  33              		.file 1 "Core/Src/command.c"
+   1:Core/Src/command.c **** #include "command.h"
+   2:Core/Src/command.c **** #include "stdio.h"
+   3:Core/Src/command.c **** #include "main.h"
+   4:Core/Src/command.c **** #include "string.h"
+   5:Core/Src/command.c **** #include "stdlib.h"
+   6:Core/Src/command.c **** extern UART_HandleTypeDef huart1;
+   7:Core/Src/command.c **** extern char charbuffer;
+   8:Core/Src/command.c **** extern Command *CMDiter;
+   9:Core/Src/command.c **** extern char msgbuffer[500];
+  10:Core/Src/command.c **** /*******************命令描述结构体*******************/
+  11:Core/Src/command.c **** Command Clear =
+  12:Core/Src/command.c **** {
+  13:Core/Src/command.c **** 	"clear",
+  14:Core/Src/command.c **** 	"Clear the screen",
+  15:Core/Src/command.c **** 	*clear,
+  16:Core/Src/command.c **** 	NULL
+  17:Core/Src/command.c **** };
+  18:Core/Src/command.c **** 
+  19:Core/Src/command.c **** Command argDetect =
+  20:Core/Src/command.c **** {
+  21:Core/Src/command.c **** 	"argtest",
+  22:Core/Src/command.c **** 	"test arg details.",
+  23:Core/Src/command.c **** 	*argtest,
+  24:Core/Src/command.c **** 	&Clear
+ARM GAS  /tmp/ccMMcrFe.s 			page 2
+
+
+  25:Core/Src/command.c **** };
+  26:Core/Src/command.c **** Command KeyScan =
+  27:Core/Src/command.c **** {
+  28:Core/Src/command.c ****     "keyscan",
+  29:Core/Src/command.c ****     "Display key value.",
+  30:Core/Src/command.c ****     *keyscan,
+  31:Core/Src/command.c ****     &argDetect
+  32:Core/Src/command.c **** };
+  33:Core/Src/command.c **** 
+  34:Core/Src/command.c **** Command Command3 = 
+  35:Core/Src/command.c **** {
+  36:Core/Src/command.c ****     "hello3",
+  37:Core/Src/command.c ****     "print \"Hello,world3\"",
+  38:Core/Src/command.c ****     *hello3,
+  39:Core/Src/command.c ****     &KeyScan
+  40:Core/Src/command.c **** };
+  41:Core/Src/command.c **** 
+  42:Core/Src/command.c **** Command Command2 = 
+  43:Core/Src/command.c **** {
+  44:Core/Src/command.c ****     "hello2",
+  45:Core/Src/command.c ****     "print \"Hello,world2\"",
+  46:Core/Src/command.c ****     *hello2,
+  47:Core/Src/command.c ****     &Command3
+  48:Core/Src/command.c **** };
+  49:Core/Src/command.c **** 
+  50:Core/Src/command.c **** Command Version = 
+  51:Core/Src/command.c **** {
+  52:Core/Src/command.c ****     "version",
+  53:Core/Src/command.c ****     "display the shell version information",
+  54:Core/Src/command.c ****     *version,
+  55:Core/Src/command.c ****     &Command2
+  56:Core/Src/command.c **** };
+  57:Core/Src/command.c **** 
+  58:Core/Src/command.c **** Command CMDList =
+  59:Core/Src/command.c **** {
+  60:Core/Src/command.c ****     "cmdlist",
+  61:Core/Src/command.c ****     "list the avaliable command and its description",
+  62:Core/Src/command.c ****     *cmdlist,
+  63:Core/Src/command.c ****     &Version
+  64:Core/Src/command.c **** };
+  65:Core/Src/command.c **** 
+  66:Core/Src/command.c **** /*******************命令实现函数*******************/
+  67:Core/Src/command.c **** void clear(int argc, char **argv)
+  68:Core/Src/command.c **** {
+  34              		.loc 1 68 1 view -0
+  35              		.cfi_startproc
+  36              		@ args = 0, pretend = 0, frame = 0
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38              		.loc 1 68 1 is_stmt 0 view .LVU1
+  39 0000 08B5     		push	{r3, lr}
+  40              	.LCFI0:
+  41              		.cfi_def_cfa_offset 8
+  42              		.cfi_offset 3, -8
+  43              		.cfi_offset 14, -4
+  69:Core/Src/command.c ****     DebugSend("\x1B[2J\x1B[H");
+  44              		.loc 1 69 5 is_stmt 1 view .LVU2
+  45 0002 0248     		ldr	r0, .L3
+ARM GAS  /tmp/ccMMcrFe.s 			page 3
+
+
+  46              	.LVL1:
+  47              		.loc 1 69 5 is_stmt 0 view .LVU3
+  48 0004 FFF7FEFF 		bl	DebugSend
+  49              	.LVL2:
+  70:Core/Src/command.c **** }
+  50              		.loc 1 70 1 view .LVU4
+  51 0008 08BD     		pop	{r3, pc}
+  52              	.L4:
+  53 000a 00BF     		.align	2
+  54              	.L3:
+  55 000c 00000000 		.word	.LC0
+  56              		.cfi_endproc
+  57              	.LFE133:
+  59              		.section	.rodata.version.str1.4,"aMS",%progbits,1
+  60              		.align	2
+  61              	.LC1:
+  62 0000 1B5B376D 		.ascii	"\033[7mTaKeToRi Shell ver. 0.0.4\000"
+  62      54614B65 
+  62      546F5269 
+  62      20536865 
+  62      6C6C2076 
+  63 001e 0000     		.align	2
+  64              	.LC2:
+  65 0020 1B5B306D 		.ascii	"\033[0m\000"
+  65      00
+  66              		.section	.text.version,"ax",%progbits
+  67              		.align	1
+  68              		.global	version
+  69              		.syntax unified
+  70              		.thumb
+  71              		.thumb_func
+  73              	version:
+  74              	.LVL3:
+  75              	.LFB136:
+  71:Core/Src/command.c **** 
+  72:Core/Src/command.c **** void argtest(int argc, char **argv)
+  73:Core/Src/command.c **** {
+  74:Core/Src/command.c **** 	sprintf(msgbuffer,"Arg count:%d",argc);
+  75:Core/Src/command.c **** 	MsgSend(msgbuffer);
+  76:Core/Src/command.c **** 	for(int i=0; i<argc; i++)
+  77:Core/Src/command.c **** 	{
+  78:Core/Src/command.c **** 		MsgSend(argv[i]);
+  79:Core/Src/command.c **** 		free(argv[i]);
+  80:Core/Src/command.c **** 	}
+  81:Core/Src/command.c **** 	memset(msgbuffer,0x00, strlen(msgbuffer));
+  82:Core/Src/command.c **** 	
+  83:Core/Src/command.c **** }
+  84:Core/Src/command.c **** 
+  85:Core/Src/command.c **** void cmdlist(int argc, char **argv)
+  86:Core/Src/command.c **** {
+  87:Core/Src/command.c ****     char msgbuf[500];
+  88:Core/Src/command.c ****     uint8_t i=1;
+  89:Core/Src/command.c ****     uint8_t j=0;
+  90:Core/Src/command.c ****     uint8_t k=0;
+  91:Core/Src/command.c ****     CMDiter = &CMDList;
+  92:Core/Src/command.c ****     while(CMDiter->next != NULL)
+  93:Core/Src/command.c ****     {
+ARM GAS  /tmp/ccMMcrFe.s 			page 4
+
+
+  94:Core/Src/command.c ****         i++;
+  95:Core/Src/command.c ****         CMDiter = CMDiter->next;
+  96:Core/Src/command.c ****     }
+  97:Core/Src/command.c ****     CMDiter = &CMDList;
+  98:Core/Src/command.c ****     strcat(msgbuf, "Found Avaliable command:\r\nCommand:                description:");
+  99:Core/Src/command.c ****     MsgSend(msgbuf);
+ 100:Core/Src/command.c ****     while(j!=i)
+ 101:Core/Src/command.c ****     {
+ 102:Core/Src/command.c ****         sprintf(msgbuf, "%d. %s",j+1,CMDiter->command);
+ 103:Core/Src/command.c ****         k=24-strlen(msgbuf);
+ 104:Core/Src/command.c ****         while(k--)
+ 105:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 106:Core/Src/command.c ****         strcat(msgbuf, CMDiter->description);
+ 107:Core/Src/command.c ****         MsgSend(msgbuf);
+ 108:Core/Src/command.c ****         CMDiter = CMDiter->next;
+ 109:Core/Src/command.c ****         j++;
+ 110:Core/Src/command.c ****         memset(msgbuf, 0x00, strlen(msgbuf));
+ 111:Core/Src/command.c ****     };
+ 112:Core/Src/command.c ****     
+ 113:Core/Src/command.c **** }
+ 114:Core/Src/command.c **** 
+ 115:Core/Src/command.c **** void version(int argc, char **argv)
+ 116:Core/Src/command.c **** {
+  76              		.loc 1 116 1 is_stmt 1 view -0
+  77              		.cfi_startproc
+  78              		@ args = 0, pretend = 0, frame = 0
+  79              		@ frame_needed = 0, uses_anonymous_args = 0
+  80              		.loc 1 116 1 is_stmt 0 view .LVU6
+  81 0000 08B5     		push	{r3, lr}
+  82              	.LCFI1:
+  83              		.cfi_def_cfa_offset 8
+  84              		.cfi_offset 3, -8
+  85              		.cfi_offset 14, -4
+ 117:Core/Src/command.c ****     MsgSend("\x1B[7mTaKeToRi Shell ver. 0.0.4");
+  86              		.loc 1 117 5 is_stmt 1 view .LVU7
+  87 0002 0348     		ldr	r0, .L7
+  88              	.LVL4:
+  89              		.loc 1 117 5 is_stmt 0 view .LVU8
+  90 0004 FFF7FEFF 		bl	MsgSend
+  91              	.LVL5:
+ 118:Core/Src/command.c ****     DebugSend("\x1B[0m");
+  92              		.loc 1 118 5 is_stmt 1 view .LVU9
+  93 0008 0248     		ldr	r0, .L7+4
+  94 000a FFF7FEFF 		bl	DebugSend
+  95              	.LVL6:
+ 119:Core/Src/command.c **** }
+  96              		.loc 1 119 1 is_stmt 0 view .LVU10
+  97 000e 08BD     		pop	{r3, pc}
+  98              	.L8:
+  99              		.align	2
+ 100              	.L7:
+ 101 0010 00000000 		.word	.LC1
+ 102 0014 20000000 		.word	.LC2
+ 103              		.cfi_endproc
+ 104              	.LFE136:
+ 106              		.section	.rodata.hello2.str1.4,"aMS",%progbits,1
+ 107              		.align	2
+ARM GAS  /tmp/ccMMcrFe.s 			page 5
+
+
+ 108              	.LC3:
+ 109 0000 48656C6C 		.ascii	"Hello,world2\000"
+ 109      6F2C776F 
+ 109      726C6432 
+ 109      00
+ 110              		.section	.text.hello2,"ax",%progbits
+ 111              		.align	1
+ 112              		.global	hello2
+ 113              		.syntax unified
+ 114              		.thumb
+ 115              		.thumb_func
+ 117              	hello2:
+ 118              	.LVL7:
+ 119              	.LFB137:
+ 120:Core/Src/command.c **** 
+ 121:Core/Src/command.c **** void hello2(int argc, char **argv)
+ 122:Core/Src/command.c **** {
+ 120              		.loc 1 122 1 is_stmt 1 view -0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		.loc 1 122 1 is_stmt 0 view .LVU12
+ 125 0000 08B5     		push	{r3, lr}
+ 126              	.LCFI2:
+ 127              		.cfi_def_cfa_offset 8
+ 128              		.cfi_offset 3, -8
+ 129              		.cfi_offset 14, -4
+ 123:Core/Src/command.c ****     MsgSend("Hello,world2");
+ 130              		.loc 1 123 5 is_stmt 1 view .LVU13
+ 131 0002 0248     		ldr	r0, .L11
+ 132              	.LVL8:
+ 133              		.loc 1 123 5 is_stmt 0 view .LVU14
+ 134 0004 FFF7FEFF 		bl	MsgSend
+ 135              	.LVL9:
+ 124:Core/Src/command.c **** }
+ 136              		.loc 1 124 1 view .LVU15
+ 137 0008 08BD     		pop	{r3, pc}
+ 138              	.L12:
+ 139 000a 00BF     		.align	2
+ 140              	.L11:
+ 141 000c 00000000 		.word	.LC3
+ 142              		.cfi_endproc
+ 143              	.LFE137:
+ 145              		.section	.rodata.hello3.str1.4,"aMS",%progbits,1
+ 146              		.align	2
+ 147              	.LC4:
+ 148 0000 48656C6C 		.ascii	"Hello,world3\000"
+ 148      6F2C776F 
+ 148      726C6433 
+ 148      00
+ 149              		.section	.text.hello3,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	hello3
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	hello3:
+ARM GAS  /tmp/ccMMcrFe.s 			page 6
+
+
+ 157              	.LVL10:
+ 158              	.LFB138:
+ 125:Core/Src/command.c **** 
+ 126:Core/Src/command.c **** void hello3(int argc, char **argv)
+ 127:Core/Src/command.c **** {
+ 159              		.loc 1 127 1 is_stmt 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		.loc 1 127 1 is_stmt 0 view .LVU17
+ 164 0000 08B5     		push	{r3, lr}
+ 165              	.LCFI3:
+ 166              		.cfi_def_cfa_offset 8
+ 167              		.cfi_offset 3, -8
+ 168              		.cfi_offset 14, -4
+ 128:Core/Src/command.c ****     MsgSend("Hello,world3");
+ 169              		.loc 1 128 5 is_stmt 1 view .LVU18
+ 170 0002 0248     		ldr	r0, .L15
+ 171              	.LVL11:
+ 172              		.loc 1 128 5 is_stmt 0 view .LVU19
+ 173 0004 FFF7FEFF 		bl	MsgSend
+ 174              	.LVL12:
+ 129:Core/Src/command.c **** }
+ 175              		.loc 1 129 1 view .LVU20
+ 176 0008 08BD     		pop	{r3, pc}
+ 177              	.L16:
+ 178 000a 00BF     		.align	2
+ 179              	.L15:
+ 180 000c 00000000 		.word	.LC4
+ 181              		.cfi_endproc
+ 182              	.LFE138:
+ 184              		.section	.rodata.argtest.str1.4,"aMS",%progbits,1
+ 185              		.align	2
+ 186              	.LC5:
+ 187 0000 41726720 		.ascii	"Arg count:%d\000"
+ 187      636F756E 
+ 187      743A2564 
+ 187      00
+ 188              		.section	.text.argtest,"ax",%progbits
+ 189              		.align	1
+ 190              		.global	argtest
+ 191              		.syntax unified
+ 192              		.thumb
+ 193              		.thumb_func
+ 195              	argtest:
+ 196              	.LVL13:
+ 197              	.LFB134:
+  73:Core/Src/command.c **** 	sprintf(msgbuffer,"Arg count:%d",argc);
+ 198              		.loc 1 73 1 is_stmt 1 view -0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+  73:Core/Src/command.c **** 	sprintf(msgbuffer,"Arg count:%d",argc);
+ 202              		.loc 1 73 1 is_stmt 0 view .LVU22
+ 203 0000 70B5     		push	{r4, r5, r6, lr}
+ 204              	.LCFI4:
+ 205              		.cfi_def_cfa_offset 16
+ARM GAS  /tmp/ccMMcrFe.s 			page 7
+
+
+ 206              		.cfi_offset 4, -16
+ 207              		.cfi_offset 5, -12
+ 208              		.cfi_offset 6, -8
+ 209              		.cfi_offset 14, -4
+ 210 0002 0646     		mov	r6, r0
+ 211 0004 0D46     		mov	r5, r1
+  74:Core/Src/command.c **** 	MsgSend(msgbuffer);
+ 212              		.loc 1 74 2 is_stmt 1 view .LVU23
+ 213 0006 104C     		ldr	r4, .L21
+ 214 0008 0246     		mov	r2, r0
+ 215 000a 1049     		ldr	r1, .L21+4
+ 216              	.LVL14:
+  74:Core/Src/command.c **** 	MsgSend(msgbuffer);
+ 217              		.loc 1 74 2 is_stmt 0 view .LVU24
+ 218 000c 2046     		mov	r0, r4
+ 219              	.LVL15:
+  74:Core/Src/command.c **** 	MsgSend(msgbuffer);
+ 220              		.loc 1 74 2 view .LVU25
+ 221 000e FFF7FEFF 		bl	sprintf
+ 222              	.LVL16:
+  75:Core/Src/command.c **** 	for(int i=0; i<argc; i++)
+ 223              		.loc 1 75 2 is_stmt 1 view .LVU26
+ 224 0012 2046     		mov	r0, r4
+ 225 0014 FFF7FEFF 		bl	MsgSend
+ 226              	.LVL17:
+  76:Core/Src/command.c **** 	{
+ 227              		.loc 1 76 2 view .LVU27
+ 228              	.LBB2:
+  76:Core/Src/command.c **** 	{
+ 229              		.loc 1 76 6 view .LVU28
+  76:Core/Src/command.c **** 	{
+ 230              		.loc 1 76 10 is_stmt 0 view .LVU29
+ 231 0018 0024     		movs	r4, #0
+  76:Core/Src/command.c **** 	{
+ 232              		.loc 1 76 2 view .LVU30
+ 233 001a 08E0     		b	.L18
+ 234              	.LVL18:
+ 235              	.L19:
+  78:Core/Src/command.c **** 		free(argv[i]);
+ 236              		.loc 1 78 3 is_stmt 1 discriminator 3 view .LVU31
+ 237 001c 55F82400 		ldr	r0, [r5, r4, lsl #2]
+ 238 0020 FFF7FEFF 		bl	MsgSend
+ 239              	.LVL19:
+  79:Core/Src/command.c **** 	}
+ 240              		.loc 1 79 3 discriminator 3 view .LVU32
+ 241 0024 55F82400 		ldr	r0, [r5, r4, lsl #2]
+ 242 0028 FFF7FEFF 		bl	free
+ 243              	.LVL20:
+  76:Core/Src/command.c **** 	{
+ 244              		.loc 1 76 23 discriminator 3 view .LVU33
+  76:Core/Src/command.c **** 	{
+ 245              		.loc 1 76 24 is_stmt 0 discriminator 3 view .LVU34
+ 246 002c 0134     		adds	r4, r4, #1
+ 247              	.LVL21:
+ 248              	.L18:
+  76:Core/Src/command.c **** 	{
+ 249              		.loc 1 76 15 is_stmt 1 discriminator 1 view .LVU35
+ARM GAS  /tmp/ccMMcrFe.s 			page 8
+
+
+  76:Core/Src/command.c **** 	{
+ 250              		.loc 1 76 2 is_stmt 0 discriminator 1 view .LVU36
+ 251 002e B442     		cmp	r4, r6
+ 252 0030 F4DB     		blt	.L19
+ 253              	.LBE2:
+  81:Core/Src/command.c **** 	
+ 254              		.loc 1 81 2 is_stmt 1 view .LVU37
+ 255 0032 054C     		ldr	r4, .L21
+ 256              	.LVL22:
+  81:Core/Src/command.c **** 	
+ 257              		.loc 1 81 2 is_stmt 0 view .LVU38
+ 258 0034 2046     		mov	r0, r4
+ 259 0036 FFF7FEFF 		bl	strlen
+ 260              	.LVL23:
+ 261 003a 0246     		mov	r2, r0
+ 262 003c 0021     		movs	r1, #0
+ 263 003e 2046     		mov	r0, r4
+ 264 0040 FFF7FEFF 		bl	memset
+ 265              	.LVL24:
+  83:Core/Src/command.c **** 
+ 266              		.loc 1 83 1 view .LVU39
+ 267 0044 70BD     		pop	{r4, r5, r6, pc}
+ 268              	.LVL25:
+ 269              	.L22:
+  83:Core/Src/command.c **** 
+ 270              		.loc 1 83 1 view .LVU40
+ 271 0046 00BF     		.align	2
+ 272              	.L21:
+ 273 0048 00000000 		.word	msgbuffer
+ 274 004c 00000000 		.word	.LC5
+ 275              		.cfi_endproc
+ 276              	.LFE134:
+ 278              		.section	.rodata.cmdlist.str1.4,"aMS",%progbits,1
+ 279              		.align	2
+ 280              	.LC6:
+ 281 0000 466F756E 		.ascii	"Found Avaliable command:\015\012Command:           "
+ 281      64204176 
+ 281      616C6961 
+ 281      626C6520 
+ 281      636F6D6D 
+ 282 002d 20202020 		.ascii	"     description:\000"
+ 282      20646573 
+ 282      63726970 
+ 282      74696F6E 
+ 282      3A00
+ 283 003f 00       		.align	2
+ 284              	.LC7:
+ 285 0040 25642E20 		.ascii	"%d. %s\000"
+ 285      257300
+ 286 0047 00       		.align	2
+ 287              	.LC8:
+ 288 0048 2000     		.ascii	" \000"
+ 289              		.section	.text.cmdlist,"ax",%progbits
+ 290              		.align	1
+ 291              		.global	cmdlist
+ 292              		.syntax unified
+ 293              		.thumb
+ARM GAS  /tmp/ccMMcrFe.s 			page 9
+
+
+ 294              		.thumb_func
+ 296              	cmdlist:
+ 297              	.LVL26:
+ 298              	.LFB135:
+  86:Core/Src/command.c ****     char msgbuf[500];
+ 299              		.loc 1 86 1 is_stmt 1 view -0
+ 300              		.cfi_startproc
+ 301              		@ args = 0, pretend = 0, frame = 504
+ 302              		@ frame_needed = 0, uses_anonymous_args = 0
+  86:Core/Src/command.c ****     char msgbuf[500];
+ 303              		.loc 1 86 1 is_stmt 0 view .LVU42
+ 304 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 305              	.LCFI5:
+ 306              		.cfi_def_cfa_offset 20
+ 307              		.cfi_offset 4, -20
+ 308              		.cfi_offset 5, -16
+ 309              		.cfi_offset 6, -12
+ 310              		.cfi_offset 7, -8
+ 311              		.cfi_offset 14, -4
+ 312 0002 FFB0     		sub	sp, sp, #508
+ 313              	.LCFI6:
+ 314              		.cfi_def_cfa_offset 528
+  87:Core/Src/command.c ****     uint8_t i=1;
+ 315              		.loc 1 87 5 is_stmt 1 view .LVU43
+  88:Core/Src/command.c ****     uint8_t j=0;
+ 316              		.loc 1 88 5 view .LVU44
+ 317              	.LVL27:
+  89:Core/Src/command.c ****     uint8_t k=0;
+ 318              		.loc 1 89 5 view .LVU45
+  90:Core/Src/command.c ****     CMDiter = &CMDList;
+ 319              		.loc 1 90 5 view .LVU46
+  91:Core/Src/command.c ****     while(CMDiter->next != NULL)
+ 320              		.loc 1 91 5 view .LVU47
+  91:Core/Src/command.c ****     while(CMDiter->next != NULL)
+ 321              		.loc 1 91 13 is_stmt 0 view .LVU48
+ 322 0004 324B     		ldr	r3, .L33
+ 323 0006 334A     		ldr	r2, .L33+4
+ 324 0008 1A60     		str	r2, [r3]
+  92:Core/Src/command.c ****     {
+ 325              		.loc 1 92 5 is_stmt 1 view .LVU49
+  88:Core/Src/command.c ****     uint8_t j=0;
+ 326              		.loc 1 88 13 is_stmt 0 view .LVU50
+ 327 000a 0126     		movs	r6, #1
+  92:Core/Src/command.c ****     {
+ 328              		.loc 1 92 10 view .LVU51
+ 329 000c 03E0     		b	.L24
+ 330              	.LVL28:
+ 331              	.L25:
+  94:Core/Src/command.c ****         CMDiter = CMDiter->next;
+ 332              		.loc 1 94 9 is_stmt 1 view .LVU52
+  94:Core/Src/command.c ****         CMDiter = CMDiter->next;
+ 333              		.loc 1 94 10 is_stmt 0 view .LVU53
+ 334 000e 0136     		adds	r6, r6, #1
+ 335              	.LVL29:
+  94:Core/Src/command.c ****         CMDiter = CMDiter->next;
+ 336              		.loc 1 94 10 view .LVU54
+ 337 0010 F6B2     		uxtb	r6, r6
+ARM GAS  /tmp/ccMMcrFe.s 			page 10
+
+
+ 338              	.LVL30:
+  95:Core/Src/command.c ****     }
+ 339              		.loc 1 95 9 is_stmt 1 view .LVU55
+  95:Core/Src/command.c ****     }
+ 340              		.loc 1 95 17 is_stmt 0 view .LVU56
+ 341 0012 2F4A     		ldr	r2, .L33
+ 342 0014 1360     		str	r3, [r2]
+ 343              	.LVL31:
+ 344              	.L24:
+  92:Core/Src/command.c ****     {
+ 345              		.loc 1 92 10 is_stmt 1 view .LVU57
+  92:Core/Src/command.c ****     {
+ 346              		.loc 1 92 18 is_stmt 0 view .LVU58
+ 347 0016 2E4B     		ldr	r3, .L33
+ 348 0018 1B68     		ldr	r3, [r3]
+ 349 001a DB68     		ldr	r3, [r3, #12]
+  92:Core/Src/command.c ****     {
+ 350              		.loc 1 92 10 view .LVU59
+ 351 001c 002B     		cmp	r3, #0
+ 352 001e F6D1     		bne	.L25
+  97:Core/Src/command.c ****     strcat(msgbuf, "Found Avaliable command:\r\nCommand:                description:");
+ 353              		.loc 1 97 5 is_stmt 1 view .LVU60
+  97:Core/Src/command.c ****     strcat(msgbuf, "Found Avaliable command:\r\nCommand:                description:");
+ 354              		.loc 1 97 13 is_stmt 0 view .LVU61
+ 355 0020 2B4B     		ldr	r3, .L33
+ 356 0022 2C4A     		ldr	r2, .L33+4
+ 357 0024 1A60     		str	r2, [r3]
+  98:Core/Src/command.c ****     MsgSend(msgbuf);
+ 358              		.loc 1 98 5 is_stmt 1 view .LVU62
+ 359 0026 01A8     		add	r0, sp, #4
+ 360              	.LVL32:
+  98:Core/Src/command.c ****     MsgSend(msgbuf);
+ 361              		.loc 1 98 5 is_stmt 0 view .LVU63
+ 362 0028 FFF7FEFF 		bl	strlen
+ 363              	.LVL33:
+  98:Core/Src/command.c ****     MsgSend(msgbuf);
+ 364              		.loc 1 98 5 view .LVU64
+ 365 002c 2A4D     		ldr	r5, .L33+8
+ 366 002e 01AB     		add	r3, sp, #4
+ 367 0030 1C18     		adds	r4, r3, r0
+ 368 0032 05F1300C 		add	ip, r5, #48
+ 369              	.L26:
+ 370 0036 2F46     		mov	r7, r5
+ 371 0038 0FCF     		ldmia	r7!, {r0, r1, r2, r3}
+ 372 003a 2060     		str	r0, [r4]	@ unaligned
+ 373 003c 6160     		str	r1, [r4, #4]	@ unaligned
+ 374 003e A260     		str	r2, [r4, #8]	@ unaligned
+ 375 0040 E360     		str	r3, [r4, #12]	@ unaligned
+ 376 0042 3D46     		mov	r5, r7
+ 377 0044 1034     		adds	r4, r4, #16
+ 378 0046 6745     		cmp	r7, ip
+ 379 0048 F5D1     		bne	.L26
+ 380 004a 07CD     		ldmia	r5!, {r0, r1, r2}
+ 381 004c 2060     		str	r0, [r4]	@ unaligned
+ 382 004e 6160     		str	r1, [r4, #4]	@ unaligned
+ 383 0050 A260     		str	r2, [r4, #8]	@ unaligned
+ 384 0052 2A88     		ldrh	r2, [r5]	@ unaligned
+ARM GAS  /tmp/ccMMcrFe.s 			page 11
+
+
+ 385 0054 AB78     		ldrb	r3, [r5, #2]	@ zero_extendqisi2
+ 386 0056 A281     		strh	r2, [r4, #12]	@ unaligned
+ 387 0058 A373     		strb	r3, [r4, #14]
+  99:Core/Src/command.c ****     while(j!=i)
+ 388              		.loc 1 99 5 is_stmt 1 view .LVU65
+ 389 005a 01A8     		add	r0, sp, #4
+ 390 005c FFF7FEFF 		bl	MsgSend
+ 391              	.LVL34:
+ 100:Core/Src/command.c ****     {
+ 392              		.loc 1 100 5 view .LVU66
+  89:Core/Src/command.c ****     uint8_t k=0;
+ 393              		.loc 1 89 13 is_stmt 0 view .LVU67
+ 394 0060 0025     		movs	r5, #0
+ 100:Core/Src/command.c ****     {
+ 395              		.loc 1 100 10 view .LVU68
+ 396 0062 21E0     		b	.L27
+ 397              	.LVL35:
+ 398              	.L29:
+ 105:Core/Src/command.c ****         strcat(msgbuf, CMDiter->description);
+ 399              		.loc 1 105 13 is_stmt 1 view .LVU69
+ 400 0064 01AF     		add	r7, sp, #4
+ 401 0066 3846     		mov	r0, r7
+ 402 0068 FFF7FEFF 		bl	strlen
+ 403              	.LVL36:
+ 404 006c 1B4B     		ldr	r3, .L33+12
+ 405 006e 1B88     		ldrh	r3, [r3]	@ unaligned
+ 406 0070 3B52     		strh	r3, [r7, r0]	@ unaligned
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 407              		.loc 1 104 16 is_stmt 0 view .LVU70
+ 408 0072 2246     		mov	r2, r4
+ 409              	.LVL37:
+ 410              	.L28:
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 411              		.loc 1 104 14 is_stmt 1 view .LVU71
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 412              		.loc 1 104 16 is_stmt 0 view .LVU72
+ 413 0074 531E     		subs	r3, r2, #1
+ 414 0076 DCB2     		uxtb	r4, r3
+ 415              	.LVL38:
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 416              		.loc 1 104 14 view .LVU73
+ 417 0078 002A     		cmp	r2, #0
+ 418 007a F3D1     		bne	.L29
+ 106:Core/Src/command.c ****         MsgSend(msgbuf);
+ 419              		.loc 1 106 9 is_stmt 1 view .LVU74
+ 106:Core/Src/command.c ****         MsgSend(msgbuf);
+ 420              		.loc 1 106 31 is_stmt 0 view .LVU75
+ 421 007c 144C     		ldr	r4, .L33
+ 422              	.LVL39:
+ 106:Core/Src/command.c ****         MsgSend(msgbuf);
+ 423              		.loc 1 106 31 view .LVU76
+ 424 007e 2368     		ldr	r3, [r4]
+ 425              	.LVL40:
+ 106:Core/Src/command.c ****         MsgSend(msgbuf);
+ 426              		.loc 1 106 9 view .LVU77
+ 427 0080 5968     		ldr	r1, [r3, #4]
+ 428 0082 01A8     		add	r0, sp, #4
+ARM GAS  /tmp/ccMMcrFe.s 			page 12
+
+
+ 429 0084 FFF7FEFF 		bl	strcat
+ 430              	.LVL41:
+ 107:Core/Src/command.c ****         CMDiter = CMDiter->next;
+ 431              		.loc 1 107 9 is_stmt 1 view .LVU78
+ 432 0088 01A8     		add	r0, sp, #4
+ 433 008a FFF7FEFF 		bl	MsgSend
+ 434              	.LVL42:
+ 108:Core/Src/command.c ****         j++;
+ 435              		.loc 1 108 9 view .LVU79
+ 108:Core/Src/command.c ****         j++;
+ 436              		.loc 1 108 26 is_stmt 0 view .LVU80
+ 437 008e 2368     		ldr	r3, [r4]
+ 438 0090 DB68     		ldr	r3, [r3, #12]
+ 108:Core/Src/command.c ****         j++;
+ 439              		.loc 1 108 17 view .LVU81
+ 440 0092 2360     		str	r3, [r4]
+ 109:Core/Src/command.c ****         memset(msgbuf, 0x00, strlen(msgbuf));
+ 441              		.loc 1 109 9 is_stmt 1 view .LVU82
+ 109:Core/Src/command.c ****         memset(msgbuf, 0x00, strlen(msgbuf));
+ 442              		.loc 1 109 10 is_stmt 0 view .LVU83
+ 443 0094 0135     		adds	r5, r5, #1
+ 444              	.LVL43:
+ 109:Core/Src/command.c ****         memset(msgbuf, 0x00, strlen(msgbuf));
+ 445              		.loc 1 109 10 view .LVU84
+ 446 0096 EDB2     		uxtb	r5, r5
+ 447              	.LVL44:
+ 110:Core/Src/command.c ****     };
+ 448              		.loc 1 110 9 is_stmt 1 view .LVU85
+ 449 0098 01A8     		add	r0, sp, #4
+ 450 009a FFF7FEFF 		bl	strlen
+ 451              	.LVL45:
+ 452 009e 0246     		mov	r2, r0
+ 453 00a0 0021     		movs	r1, #0
+ 454 00a2 01A8     		add	r0, sp, #4
+ 455 00a4 FFF7FEFF 		bl	memset
+ 456              	.LVL46:
+ 457              	.L27:
+ 100:Core/Src/command.c ****     {
+ 458              		.loc 1 100 10 view .LVU86
+ 459 00a8 AE42     		cmp	r6, r5
+ 460 00aa 0FD0     		beq	.L32
+ 102:Core/Src/command.c ****         k=24-strlen(msgbuf);
+ 461              		.loc 1 102 9 view .LVU87
+ 102:Core/Src/command.c ****         k=24-strlen(msgbuf);
+ 462              		.loc 1 102 45 is_stmt 0 view .LVU88
+ 463 00ac 084B     		ldr	r3, .L33
+ 464 00ae 1B68     		ldr	r3, [r3]
+ 102:Core/Src/command.c ****         k=24-strlen(msgbuf);
+ 465              		.loc 1 102 9 view .LVU89
+ 466 00b0 1B68     		ldr	r3, [r3]
+ 467 00b2 6A1C     		adds	r2, r5, #1
+ 468 00b4 0A49     		ldr	r1, .L33+16
+ 469 00b6 01A8     		add	r0, sp, #4
+ 470 00b8 FFF7FEFF 		bl	sprintf
+ 471              	.LVL47:
+ 103:Core/Src/command.c ****         while(k--)
+ 472              		.loc 1 103 9 is_stmt 1 view .LVU90
+ARM GAS  /tmp/ccMMcrFe.s 			page 13
+
+
+ 103:Core/Src/command.c ****         while(k--)
+ 473              		.loc 1 103 14 is_stmt 0 view .LVU91
+ 474 00bc 01A8     		add	r0, sp, #4
+ 475 00be FFF7FEFF 		bl	strlen
+ 476              	.LVL48:
+ 103:Core/Src/command.c ****         while(k--)
+ 477              		.loc 1 103 13 view .LVU92
+ 478 00c2 C2B2     		uxtb	r2, r0
+ 103:Core/Src/command.c ****         while(k--)
+ 479              		.loc 1 103 10 view .LVU93
+ 480 00c4 C2F11802 		rsb	r2, r2, #24
+ 481 00c8 D2B2     		uxtb	r2, r2
+ 482              	.LVL49:
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 483              		.loc 1 104 9 is_stmt 1 view .LVU94
+ 104:Core/Src/command.c ****             strcat(msgbuf, " ");
+ 484              		.loc 1 104 14 is_stmt 0 view .LVU95
+ 485 00ca D3E7     		b	.L28
+ 486              	.LVL50:
+ 487              	.L32:
+ 113:Core/Src/command.c **** 
+ 488              		.loc 1 113 1 view .LVU96
+ 489 00cc 7FB0     		add	sp, sp, #508
+ 490              	.LCFI7:
+ 491              		.cfi_def_cfa_offset 20
+ 492              		@ sp needed
+ 493 00ce F0BD     		pop	{r4, r5, r6, r7, pc}
+ 494              	.LVL51:
+ 495              	.L34:
+ 113:Core/Src/command.c **** 
+ 496              		.loc 1 113 1 view .LVU97
+ 497              		.align	2
+ 498              	.L33:
+ 499 00d0 00000000 		.word	CMDiter
+ 500 00d4 00000000 		.word	.LANCHOR0
+ 501 00d8 00000000 		.word	.LC6
+ 502 00dc 48000000 		.word	.LC8
+ 503 00e0 40000000 		.word	.LC7
+ 504              		.cfi_endproc
+ 505              	.LFE135:
+ 507              		.section	.rodata.keyscan.str1.4,"aMS",%progbits,1
+ 508              		.align	2
+ 509              	.LC9:
+ 510 0000 E994AEE5 		.ascii	"\351\224\256\345\200\274\346\243\200\346\265\213:  "
+ 510      80BCE6A3 
+ 510      80E6B58B 
+ 510      3A2020
+ 511 000f 00       		.ascii	"\000"
+ 512              		.align	2
+ 513              	.LC10:
+ 514 0010 E98080E5 		.ascii	"\351\200\200\345\207\272...\000"
+ 514      87BA2E2E 
+ 514      2E00
+ 515 001a 0000     		.align	2
+ 516              	.LC11:
+ 517 001c 7F00     		.ascii	"\177\000"
+ 518 001e 0000     		.align	2
+ARM GAS  /tmp/ccMMcrFe.s 			page 14
+
+
+ 519              	.LC12:
+ 520 0020 256400   		.ascii	"%d\000"
+ 521              		.section	.text.keyscan,"ax",%progbits
+ 522              		.align	1
+ 523              		.global	keyscan
+ 524              		.syntax unified
+ 525              		.thumb
+ 526              		.thumb_func
+ 528              	keyscan:
+ 529              	.LVL52:
+ 530              	.LFB139:
+ 130:Core/Src/command.c **** 
+ 131:Core/Src/command.c **** void keyscan(int argc, char **argv)
+ 132:Core/Src/command.c **** {
+ 531              		.loc 1 132 1 is_stmt 1 view -0
+ 532              		.cfi_startproc
+ 533              		@ args = 0, pretend = 0, frame = 8
+ 534              		@ frame_needed = 0, uses_anonymous_args = 0
+ 535              		.loc 1 132 1 is_stmt 0 view .LVU99
+ 536 0000 10B5     		push	{r4, lr}
+ 537              	.LCFI8:
+ 538              		.cfi_def_cfa_offset 8
+ 539              		.cfi_offset 4, -8
+ 540              		.cfi_offset 14, -4
+ 541 0002 82B0     		sub	sp, sp, #8
+ 542              	.LCFI9:
+ 543              		.cfi_def_cfa_offset 16
+ 133:Core/Src/command.c ****     char value[5];
+ 544              		.loc 1 133 5 is_stmt 1 view .LVU100
+ 134:Core/Src/command.c ****     MsgSend("键值检测:  ");
+ 545              		.loc 1 134 5 view .LVU101
+ 546 0004 1448     		ldr	r0, .L44
+ 547              	.LVL53:
+ 548              		.loc 1 134 5 is_stmt 0 view .LVU102
+ 549 0006 FFF7FEFF 		bl	MsgSend
+ 550              	.LVL54:
+ 551              		.loc 1 134 5 view .LVU103
+ 552 000a 16E0     		b	.L36
+ 553              	.L43:
+ 135:Core/Src/command.c ****     while(1)
+ 136:Core/Src/command.c ****     {
+ 137:Core/Src/command.c ****         if(HAL_UART_Receive(&UART, (uint8_t *)&charbuffer, 1, 0xff) == HAL_OK)
+ 138:Core/Src/command.c ****         {
+ 139:Core/Src/command.c ****             if(charbuffer == 0x03)
+ 140:Core/Src/command.c ****             {
+ 141:Core/Src/command.c ****                 MsgSend("退出...");
+ 554              		.loc 1 141 17 is_stmt 1 view .LVU104
+ 555 000c 1348     		ldr	r0, .L44+4
+ 556 000e FFF7FEFF 		bl	MsgSend
+ 557              	.LVL55:
+ 142:Core/Src/command.c ****                 break;
+ 558              		.loc 1 142 17 view .LVU105
+ 143:Core/Src/command.c ****             }
+ 144:Core/Src/command.c ****             for(int i=0;i<strlen(value); i++)
+ 145:Core/Src/command.c ****                 DebugSend("\x7F");
+ 146:Core/Src/command.c **** 
+ 147:Core/Src/command.c ****             sprintf(value,"%d",(int)charbuffer);
+ARM GAS  /tmp/ccMMcrFe.s 			page 15
+
+
+ 148:Core/Src/command.c ****             
+ 149:Core/Src/command.c ****             DebugSend(value);
+ 150:Core/Src/command.c ****         }
+ 151:Core/Src/command.c ****     }
+ 152:Core/Src/command.c **** }
+ 559              		.loc 1 152 1 is_stmt 0 view .LVU106
+ 560 0012 02B0     		add	sp, sp, #8
+ 561              	.LCFI10:
+ 562              		.cfi_remember_state
+ 563              		.cfi_def_cfa_offset 8
+ 564              		@ sp needed
+ 565 0014 10BD     		pop	{r4, pc}
+ 566              	.LVL56:
+ 567              	.L38:
+ 568              	.LCFI11:
+ 569              		.cfi_restore_state
+ 570              	.LBB3:
+ 145:Core/Src/command.c **** 
+ 571              		.loc 1 145 17 is_stmt 1 discriminator 3 view .LVU107
+ 572 0016 1248     		ldr	r0, .L44+8
+ 573 0018 FFF7FEFF 		bl	DebugSend
+ 574              	.LVL57:
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 575              		.loc 1 144 42 discriminator 3 view .LVU108
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 576              		.loc 1 144 43 is_stmt 0 discriminator 3 view .LVU109
+ 577 001c 0134     		adds	r4, r4, #1
+ 578              	.LVL58:
+ 579              	.L37:
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 580              		.loc 1 144 25 is_stmt 1 discriminator 1 view .LVU110
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 581              		.loc 1 144 27 is_stmt 0 discriminator 1 view .LVU111
+ 582 001e 6846     		mov	r0, sp
+ 583 0020 FFF7FEFF 		bl	strlen
+ 584              	.LVL59:
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 585              		.loc 1 144 13 discriminator 1 view .LVU112
+ 586 0024 A042     		cmp	r0, r4
+ 587 0026 F6D8     		bhi	.L38
+ 588              	.LBE3:
+ 147:Core/Src/command.c ****             
+ 589              		.loc 1 147 13 is_stmt 1 view .LVU113
+ 590 0028 0E4B     		ldr	r3, .L44+12
+ 591 002a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 592 002c 0E49     		ldr	r1, .L44+16
+ 593 002e 6846     		mov	r0, sp
+ 594 0030 FFF7FEFF 		bl	sprintf
+ 595              	.LVL60:
+ 149:Core/Src/command.c ****         }
+ 596              		.loc 1 149 13 view .LVU114
+ 597 0034 6846     		mov	r0, sp
+ 598 0036 FFF7FEFF 		bl	DebugSend
+ 599              	.LVL61:
+ 600              	.L36:
+ 135:Core/Src/command.c ****     {
+ 601              		.loc 1 135 5 view .LVU115
+ARM GAS  /tmp/ccMMcrFe.s 			page 16
+
+
+ 137:Core/Src/command.c ****         {
+ 602              		.loc 1 137 9 view .LVU116
+ 137:Core/Src/command.c ****         {
+ 603              		.loc 1 137 12 is_stmt 0 view .LVU117
+ 604 003a FF23     		movs	r3, #255
+ 605 003c 0122     		movs	r2, #1
+ 606 003e 0949     		ldr	r1, .L44+12
+ 607 0040 0A48     		ldr	r0, .L44+20
+ 608 0042 FFF7FEFF 		bl	HAL_UART_Receive
+ 609              	.LVL62:
+ 137:Core/Src/command.c ****         {
+ 610              		.loc 1 137 11 view .LVU118
+ 611 0046 0028     		cmp	r0, #0
+ 612 0048 F7D1     		bne	.L36
+ 139:Core/Src/command.c ****             {
+ 613              		.loc 1 139 13 is_stmt 1 view .LVU119
+ 139:Core/Src/command.c ****             {
+ 614              		.loc 1 139 27 is_stmt 0 view .LVU120
+ 615 004a 064B     		ldr	r3, .L44+12
+ 616 004c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 139:Core/Src/command.c ****             {
+ 617              		.loc 1 139 15 view .LVU121
+ 618 004e 032B     		cmp	r3, #3
+ 619 0050 DCD0     		beq	.L43
+ 620              	.LBB4:
+ 144:Core/Src/command.c ****                 DebugSend("\x7F");
+ 621              		.loc 1 144 21 view .LVU122
+ 622 0052 0024     		movs	r4, #0
+ 623 0054 E3E7     		b	.L37
+ 624              	.L45:
+ 625 0056 00BF     		.align	2
+ 626              	.L44:
+ 627 0058 00000000 		.word	.LC9
+ 628 005c 10000000 		.word	.LC10
+ 629 0060 1C000000 		.word	.LC11
+ 630 0064 00000000 		.word	charbuffer
+ 631 0068 20000000 		.word	.LC12
+ 632 006c 00000000 		.word	huart1
+ 633              	.LBE4:
+ 634              		.cfi_endproc
+ 635              	.LFE139:
+ 637              		.global	CMDList
+ 638              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 639              		.align	2
+ 640              	.LC13:
+ 641 0000 636D646C 		.ascii	"cmdlist\000"
+ 641      69737400 
+ 642              		.align	2
+ 643              	.LC14:
+ 644 0008 6C697374 		.ascii	"list the avaliable command and its description\000"
+ 644      20746865 
+ 644      20617661 
+ 644      6C696162 
+ 644      6C652063 
+ 645              		.global	Version
+ 646 0037 00       		.align	2
+ 647              	.LC15:
+ARM GAS  /tmp/ccMMcrFe.s 			page 17
+
+
+ 648 0038 76657273 		.ascii	"version\000"
+ 648      696F6E00 
+ 649              		.align	2
+ 650              	.LC16:
+ 651 0040 64697370 		.ascii	"display the shell version information\000"
+ 651      6C617920 
+ 651      74686520 
+ 651      7368656C 
+ 651      6C207665 
+ 652              		.global	Command2
+ 653 0066 0000     		.align	2
+ 654              	.LC17:
+ 655 0068 68656C6C 		.ascii	"hello2\000"
+ 655      6F3200
+ 656 006f 00       		.align	2
+ 657              	.LC18:
+ 658 0070 7072696E 		.ascii	"print \"Hello,world2\"\000"
+ 658      74202248 
+ 658      656C6C6F 
+ 658      2C776F72 
+ 658      6C643222 
+ 659              		.global	Command3
+ 660 0085 000000   		.align	2
+ 661              	.LC19:
+ 662 0088 68656C6C 		.ascii	"hello3\000"
+ 662      6F3300
+ 663 008f 00       		.align	2
+ 664              	.LC20:
+ 665 0090 7072696E 		.ascii	"print \"Hello,world3\"\000"
+ 665      74202248 
+ 665      656C6C6F 
+ 665      2C776F72 
+ 665      6C643322 
+ 666              		.global	KeyScan
+ 667 00a5 000000   		.align	2
+ 668              	.LC21:
+ 669 00a8 6B657973 		.ascii	"keyscan\000"
+ 669      63616E00 
+ 670              		.align	2
+ 671              	.LC22:
+ 672 00b0 44697370 		.ascii	"Display key value.\000"
+ 672      6C617920 
+ 672      6B657920 
+ 672      76616C75 
+ 672      652E00
+ 673              		.global	argDetect
+ 674 00c3 00       		.align	2
+ 675              	.LC23:
+ 676 00c4 61726774 		.ascii	"argtest\000"
+ 676      65737400 
+ 677              		.align	2
+ 678              	.LC24:
+ 679 00cc 74657374 		.ascii	"test arg details.\000"
+ 679      20617267 
+ 679      20646574 
+ 679      61696C73 
+ 679      2E00
+ARM GAS  /tmp/ccMMcrFe.s 			page 18
+
+
+ 680              		.global	Clear
+ 681 00de 0000     		.align	2
+ 682              	.LC25:
+ 683 00e0 636C6561 		.ascii	"clear\000"
+ 683      7200
+ 684 00e6 0000     		.align	2
+ 685              	.LC26:
+ 686 00e8 436C6561 		.ascii	"Clear the screen\000"
+ 686      72207468 
+ 686      65207363 
+ 686      7265656E 
+ 686      00
+ 687              		.section	.data.CMDList,"aw"
+ 688              		.align	2
+ 689              		.set	.LANCHOR0,. + 0
+ 692              	CMDList:
+ 693 0000 00000000 		.word	.LC13
+ 694 0004 08000000 		.word	.LC14
+ 695 0008 00000000 		.word	cmdlist
+ 696 000c 00000000 		.word	Version
+ 697              		.section	.data.Clear,"aw"
+ 698              		.align	2
+ 701              	Clear:
+ 702 0000 E0000000 		.word	.LC25
+ 703 0004 E8000000 		.word	.LC26
+ 704 0008 00000000 		.word	clear
+ 705 000c 00000000 		.word	0
+ 706              		.section	.data.Command2,"aw"
+ 707              		.align	2
+ 710              	Command2:
+ 711 0000 68000000 		.word	.LC17
+ 712 0004 70000000 		.word	.LC18
+ 713 0008 00000000 		.word	hello2
+ 714 000c 00000000 		.word	Command3
+ 715              		.section	.data.Command3,"aw"
+ 716              		.align	2
+ 719              	Command3:
+ 720 0000 88000000 		.word	.LC19
+ 721 0004 90000000 		.word	.LC20
+ 722 0008 00000000 		.word	hello3
+ 723 000c 00000000 		.word	KeyScan
+ 724              		.section	.data.KeyScan,"aw"
+ 725              		.align	2
+ 728              	KeyScan:
+ 729 0000 A8000000 		.word	.LC21
+ 730 0004 B0000000 		.word	.LC22
+ 731 0008 00000000 		.word	keyscan
+ 732 000c 00000000 		.word	argDetect
+ 733              		.section	.data.Version,"aw"
+ 734              		.align	2
+ 737              	Version:
+ 738 0000 38000000 		.word	.LC15
+ 739 0004 40000000 		.word	.LC16
+ 740 0008 00000000 		.word	version
+ 741 000c 00000000 		.word	Command2
+ 742              		.section	.data.argDetect,"aw"
+ 743              		.align	2
+ARM GAS  /tmp/ccMMcrFe.s 			page 19
+
+
+ 746              	argDetect:
+ 747 0000 C4000000 		.word	.LC23
+ 748 0004 CC000000 		.word	.LC24
+ 749 0008 00000000 		.word	argtest
+ 750 000c 00000000 		.word	Clear
+ 751              		.text
+ 752              	.Letext0:
+ 753              		.file 2 "Core/Inc/shell.h"
+ 754              		.file 3 "/home/hyc/.gcc-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h"
+ 755              		.file 4 "/home/hyc/.gcc-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h"
+ 756              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 757              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 758              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 759              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 760              		.file 9 "/home/hyc/.gcc-arm-none-eabi/arm-none-eabi/include/string.h"
+ 761              		.file 10 "/home/hyc/.gcc-arm-none-eabi/arm-none-eabi/include/stdio.h"
+ 762              		.file 11 "<built-in>"
+ 763              		.file 12 "/home/hyc/.gcc-arm-none-eabi/arm-none-eabi/include/stdlib.h"
+ARM GAS  /tmp/ccMMcrFe.s 			page 20
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 command.c
+     /tmp/ccMMcrFe.s:20     .rodata.clear.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:24     .text.clear:0000000000000000 $t
+     /tmp/ccMMcrFe.s:30     .text.clear:0000000000000000 clear
+     /tmp/ccMMcrFe.s:55     .text.clear:000000000000000c $d
+     /tmp/ccMMcrFe.s:60     .rodata.version.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:67     .text.version:0000000000000000 $t
+     /tmp/ccMMcrFe.s:73     .text.version:0000000000000000 version
+     /tmp/ccMMcrFe.s:101    .text.version:0000000000000010 $d
+     /tmp/ccMMcrFe.s:107    .rodata.hello2.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:111    .text.hello2:0000000000000000 $t
+     /tmp/ccMMcrFe.s:117    .text.hello2:0000000000000000 hello2
+     /tmp/ccMMcrFe.s:141    .text.hello2:000000000000000c $d
+     /tmp/ccMMcrFe.s:146    .rodata.hello3.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:150    .text.hello3:0000000000000000 $t
+     /tmp/ccMMcrFe.s:156    .text.hello3:0000000000000000 hello3
+     /tmp/ccMMcrFe.s:180    .text.hello3:000000000000000c $d
+     /tmp/ccMMcrFe.s:185    .rodata.argtest.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:189    .text.argtest:0000000000000000 $t
+     /tmp/ccMMcrFe.s:195    .text.argtest:0000000000000000 argtest
+     /tmp/ccMMcrFe.s:273    .text.argtest:0000000000000048 $d
+     /tmp/ccMMcrFe.s:279    .rodata.cmdlist.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:290    .text.cmdlist:0000000000000000 $t
+     /tmp/ccMMcrFe.s:296    .text.cmdlist:0000000000000000 cmdlist
+     /tmp/ccMMcrFe.s:499    .text.cmdlist:00000000000000d0 $d
+     /tmp/ccMMcrFe.s:508    .rodata.keyscan.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:522    .text.keyscan:0000000000000000 $t
+     /tmp/ccMMcrFe.s:528    .text.keyscan:0000000000000000 keyscan
+     /tmp/ccMMcrFe.s:627    .text.keyscan:0000000000000058 $d
+     /tmp/ccMMcrFe.s:692    .data.CMDList:0000000000000000 CMDList
+     /tmp/ccMMcrFe.s:639    .rodata.str1.4:0000000000000000 $d
+     /tmp/ccMMcrFe.s:737    .data.Version:0000000000000000 Version
+     /tmp/ccMMcrFe.s:710    .data.Command2:0000000000000000 Command2
+     /tmp/ccMMcrFe.s:719    .data.Command3:0000000000000000 Command3
+     /tmp/ccMMcrFe.s:728    .data.KeyScan:0000000000000000 KeyScan
+     /tmp/ccMMcrFe.s:746    .data.argDetect:0000000000000000 argDetect
+     /tmp/ccMMcrFe.s:701    .data.Clear:0000000000000000 Clear
+     /tmp/ccMMcrFe.s:688    .data.CMDList:0000000000000000 $d
+     /tmp/ccMMcrFe.s:698    .data.Clear:0000000000000000 $d
+     /tmp/ccMMcrFe.s:707    .data.Command2:0000000000000000 $d
+     /tmp/ccMMcrFe.s:716    .data.Command3:0000000000000000 $d
+     /tmp/ccMMcrFe.s:725    .data.KeyScan:0000000000000000 $d
+     /tmp/ccMMcrFe.s:734    .data.Version:0000000000000000 $d
+     /tmp/ccMMcrFe.s:743    .data.argDetect:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+DebugSend
+MsgSend
+sprintf
+free
+strlen
+memset
+msgbuffer
+strcat
+CMDiter
+HAL_UART_Receive
+ARM GAS  /tmp/ccMMcrFe.s 			page 21
+
+
+charbuffer
+huart1

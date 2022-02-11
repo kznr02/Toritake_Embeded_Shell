@@ -1,0 +1,27 @@
+--cpu Cortex-M4.fp --library_type=microlib --scatter "c:/Users/Public/Other/CodeDIR/stm32/shell/build/shell/shell.sct" --strict --summary_stderr --info summarysizes --map --xref --callgraph --symbols --info sizes --info totals --info unused --info veneers
+--list .\build\shell\shell.map
+.\build\shell\Core\Src\command.o
+.\build\shell\Core\Src\gpio.o
+.\build\shell\Core\Src\main.o
+.\build\shell\Core\Src\shell.o
+.\build\shell\Core\Src\stm32f4xx_hal_msp.o
+.\build\shell\Core\Src\stm32f4xx_it.o
+.\build\shell\Core\Src\system_stm32f4xx.o
+.\build\shell\Core\Src\usart.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_exti.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.o
+.\build\shell\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.o
+.\build\shell\MDK-ARM\startup_stm32f411xe.o -o .\build\shell\shell.axf

@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "win32",
+            "configurationProvider": "cl.eide",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"
+            ]
+        }
+    ],
+    "version": 4
+}
